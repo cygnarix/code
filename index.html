@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Integrated Museum Portfolio Journey</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,100;0,200;0,400;0,700;1,400&amp;family=Noto+Sans:wght@300;400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1754cf",
+                        "background-light": "#f2f0ed",
+                        "background-dark": "#111621",
+                    },
+                    fontFamily: {
+                        "display": ["Noto Serif", "serif"],
+                        "sans": ["Noto Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                },
+            },
+        }
+    </script>
+    
+<style>
+        body {
+            font-family: "Noto Serif", serif;
+            cursor: none;
+        }
+        .grain-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 50;
+            opacity: 0.04;
+            background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBDY-JbDovR4ORQwjTLhomSprDPwUR1PTQL1f7oqPW6TX0j1HVp0clDaPpUfLPCaZkziqpbcF_IeslWP2bp7qo_zpDv_LLMt1a_NEtIyYfdaO25eA9tyQZPg-smHwNDm63Ha4yq_262qc4zUyztSmKNh1w_7n2lhzPe8KQFa1oLdMth8_yahpZB9A7iOZ3ShYLZooPP-leuV0QzrYn90wcEDDa4hcXdkqeRmLjdgxq7Yg7VRwkEmw3OIw0b3bQkwJk6WHrizp4kfQPn');
+        }
+        .glass-orb {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.2), rgba(23, 84, 207, 0.05));
+            filter: blur(40px);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 0
+        }
+        .custom-cursor {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 100;
+            transition: width 0.3s ease, height 0.3s ease;
+            transform: translate(-50%, -50%);
+            mix-blend-mode: difference;
+            background-color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .hero-text-container {
+            position: relative;
+            display: inline-block;
+        }.hero-text-split {
+            letter-spacing: 0.2em;
+            transition: letter-spacing 0.8s cubic-bezier(0.77, 0, 0.175, 1);
+            position: relative;
+            z-index: 1;
+            color: #000;
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); 
+        }.hero-text-hidden {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            letter-spacing: 0.2em;
+            color: #1754cf;
+            z-index: 2;
+            clip-path: circle(0% at 50% 50%);
+            pointer-events: none;
+            background-color: transparent;
+            transform-origin: center;
+            transition: transform 150ms ease;
+        }
+        .hero-text-container:hover .hero-text-hidden {
+            transform: scale(1.02);
+        }
+        ::-webkit-scrollbar {
+            display: none
+        }.intro-text-block {}
+        .word-span {
+            opacity: 0.2;transition: opacity 0.1s linear;
+            display: inline-block;
+            margin-right: 0.25em;
+        }
+        .parallax-img {
+            transition: transform 0.1s linear;
+            will-change: transform;
+        }
+        .timeline-line {
+            height: 0;
+            transition: height 1.5s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .timeline-year {
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: all 0.6s ease;
+        }
+        .timeline-project {
+            opacity: 0;
+            transform: translateX(50px);
+            transition: all 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .cta-text {
+            transition: letter-spacing 0.1s linear;
+        }
+        .arch-line {
+            background-color: rgba(0,0,0,0.1);
+            transition: transform 1s cubic-bezier(0.22, 1, 0.36, 1), opacity 1s ease;
+            position: absolute;
+        }
+        .arch-line-v {
+            width: 1px;
+            height: 100%;
+            top: 0;
+            transform: scaleY(0);
+            transform-origin: top;
+        }
+        .arch-line-h {
+            height: 1px;
+            width: 100%;
+            left: 0;
+            transform: scaleX(0);
+            transform-origin: left;
+        }
+        .arch-line.active {
+            transform: scale(1);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-[#0e121b] selection:bg-primary/20 overflow-x-hidden">
+<div class="custom-cursor hidden md:flex" id="cursor"></div>
+<div class="grain-overlay"></div>
+<main class="relative w-full flex flex-col items-center">
+<nav class="fixed inset-0 pointer-events-none z-40 p-10 flex flex-col justify-between">
+<div class="flex justify-between items-start pointer-events-auto">
+<div class="flex items-center gap-2 group cursor-pointer">
+<div class="size-6 text-primary">
+<svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M42.4379 44C42.4379 44 36.0744 33.9038 41.1692 24C46.8624 12.9336 42.2078 4 42.2078 4L7.01134 4C7.01134 4 11.6577 12.932 5.96912 23.9969C0.876273 33.9029 7.27094 44 7.27094 44L42.4379 44Z" fill="currentColor"></path>
+</svg>
+</div>
+<span class="text-sm font-bold tracking-widest uppercase font-sans">Portfolio</span>
+</div>
+<button class="flex items-center gap-4 group cursor-pointer">
+<span class="text-xs font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity font-sans">Index</span>
+<div class="size-10 flex items-center justify-center border border-black/10 rounded-full hover:bg-primary hover:text-white transition-all">
+<span class="material-symbols-outlined text-[20px]">menu</span>
+</div>
+</button>
+</div>
+<div class="flex justify-between items-end pointer-events-auto">
+<div class="flex flex-col gap-1">
+<p class="text-[10px] uppercase tracking-[0.3em] text-primary/60 font-sans font-bold">Location &amp; Time</p>
+<p class="text-sm font-medium">EST. 2024 / NYC — <span id="time-display">14:02 PM</span></p>
+</div>
+<a class="group flex flex-col items-end" href="#contact-section">
+<p class="text-[10px] uppercase tracking-[0.3em] text-primary/60 font-sans font-bold">Inquiries</p>
+<div class="flex items-center gap-2">
+<span class="text-sm font-medium border-b border-transparent group-hover:border-primary transition-all">GET IN TOUCH</span>
+<span class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</div>
+</a>
+</div>
+</nav>
+<section class="relative h-screen w-full flex flex-col items-center justify-center overflow-hidden bg-background-light z-10" id="hero-section">
+<div class="glass-orb"></div>
+<div class="relative z-10 flex flex-col items-center text-center">
+<p class="text-[10px] uppercase tracking-[0.5em] mb-8 opacity-40 font-sans font-bold">Curated Works Portfolio</p>
+<div class="hero-text-container group">
+<h1 class="hero-text-split text-[12vw] font-[100] leading-none text-black select-none pointer-events-auto hover:scale-[1.02] transition-transform cursor-pointer" id="hero-text-base">
+                    ARCHIVE
+                </h1>
+<h1 class="hero-text-hidden text-[12vw] font-[100] leading-none text-primary select-none pointer-events-none" id="hero-text-reveal">
+                    ABSTRACT
+                </h1>
+</div>
+<div class="mt-12 flex flex-col items-center gap-4">
+<p class="text-center max-w-xs text-sm italic opacity-60">
+                    A digital gallery exploring the intersection of brutalist architecture and fluid motion design.
+                </p>
+<div class="w-px h-16 bg-gradient-to-b from-primary/40 to-transparent"></div>
+</div>
+</div>
+<div class="absolute bottom-10 left-1/2 -translate-x-1/2 text-[9px] uppercase tracking-[0.4em] opacity-40 animate-pulse font-sans font-bold">
+            Scroll to explore
+        </div>
+</section>
+<section class="relative w-full h-[200vh] bg-background-light z-20" id="intro-section-container">
+<div class="sticky top-0 h-screen flex items-center justify-center overflow-hidden">
+<div class="max-w-4xl px-10">
+<p class="text-4xl md:text-5xl font-light leading-tight text-center text-[#0e121b] intro-text-block" id="intro-paragraph">
+                Digital design is not merely about arrangement, but about the rhythm of information. We craft experiences where silence speaks as loudly as content, and motion breathes life into static forms.
+            </p>
+</div>
+</div>
+</section>
+<section class="relative w-full py-32 flex flex-col items-center bg-background-light z-20 overflow-hidden" id="skills-section">
+<div class="relative z-10 max-w-5xl w-full px-10">
+<div class="text-center mb-24">
+<h2 class="text-xs uppercase tracking-[0.4em] font-sans font-bold mb-4 opacity-40">Proficiencies</h2>
+<p class="text-xl italic font-light opacity-60">The Exhibition Wall</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 w-full border-t border-black/5 relative" id="skills-grid">
+<div class="relative h-40 md:h-60 flex items-center justify-center group border-b border-black/5">
+<div class="arch-line arch-line-v right-0"></div>
+<span class="text-2xl md:text-3xl font-display italic font-light group-hover:text-primary transition-colors duration-500">UX/UI Design</span>
+</div>
+<div class="relative h-40 md:h-60 flex items-center justify-center group border-b border-black/5">
+<div class="arch-line arch-line-v right-0"></div>
+<span class="text-2xl md:text-3xl font-display italic font-light group-hover:text-primary transition-colors duration-500">WebGL</span>
+</div>
+<div class="relative h-40 md:h-60 flex items-center justify-center group border-b border-black/5">
+<span class="text-2xl md:text-3xl font-display italic font-light group-hover:text-primary transition-colors duration-500">React &amp; Vue</span>
+</div>
+<div class="relative h-40 md:h-60 flex items-center justify-center group border-b border-black/5 md:border-b-0">
+<div class="arch-line arch-line-v right-0"></div>
+<span class="text-2xl md:text-3xl font-display italic font-light group-hover:text-primary transition-colors duration-500">Motion</span>
+</div>
+<div class="relative h-40 md:h-60 flex items-center justify-center group border-b border-black/5 md:border-b-0">
+<div class="arch-line arch-line-v right-0"></div>
+<span class="text-2xl md:text-3xl font-display italic font-light group-hover:text-primary transition-colors duration-500">Brand Strategy</span>
+</div>
+<div class="relative h-40 md:h-60 flex items-center justify-center group">
+<span class="text-2xl md:text-3xl font-display italic font-light group-hover:text-primary transition-colors duration-500">Creative Direction</span>
+</div>
+</div>
+</div>
+</section>
+<section class="relative w-full max-w-[1400px] px-10 py-40 z-20 bg-background-light mx-auto" id="archive-grid">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+<div class="vertical-panel group flex flex-col gap-6 pt-20">
+<div class="relative aspect-[3/4] overflow-hidden rounded bg-stone-200">
+<div class="parallax-img absolute inset-[-20%] bg-cover bg-center transition-transform duration-100 ease-linear" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBtcKQb1bbgzZHVIlnPei-lzFNG4pAo7jnPuy25MgzpQQ5loZDHVCdF_x6ICqt0PlS-15RqQgpkrwZBL0GpigBx0_kT3N6aWchhPaFLRzM8IGeVV-rrSuyOrBEmoIkouRc8k0J_htJU9cQWilvFWXwQ-YFQiRr1FGCKJ6Qosc3f-RFUrDb5osa2qurDcYBbWl4hBP8zXFon6dDLEgHEt2o-2ChwH0aOYlCAQQtArzSE3awIxtukHorHydRV_aQaHeLe89kUPUVvU9F9');"></div>
+<div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-500"></div>
+</div>
+<div class="flex flex-col gap-1">
+<span class="text-[10px] uppercase tracking-widest text-primary font-bold font-sans">Industrial Design</span>
+<h3 class="text-2xl font-light group-hover:pl-2 transition-all duration-300">Luminescence II</h3>
+<p class="text-sm opacity-50 max-w-xs">Study of light refraction through monolithic materials.</p>
+</div>
+</div>
+<div class="vertical-panel group flex flex-col gap-6 pt-0">
+<div class="relative aspect-[3/4] overflow-hidden rounded bg-stone-200">
+<div class="parallax-img absolute inset-[-20%] bg-cover bg-center transition-transform duration-100 ease-linear" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBWe8yoIceBmM7djzuVxs_J60aoA0GUEot6Ako3o5ashx_mxUgcvBOSZc1kLZyo7L7jUnD4zgvOzPOHl-3hpjFcnFij85uLDESsKS8BkSztWfYYiQsp_sAdFcY9OzDnP98hqlvLqJUYRo5ztDzEvsVlTa3JdHpGFrpuzcuHS06WPLQfoyJhhJ15qx0pF_sDBRhah-S_BofgFElq2PQaYPJrWh6Y0I2qEW0OPeEZ534QTVnZvqqxFNkfW-0cPejb0SLmGo9m88Z6HCV8');"></div>
+<div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-500"></div>
+</div>
+<div class="flex flex-col gap-1">
+<span class="text-[10px] uppercase tracking-widest text-primary font-bold font-sans">Architecture</span>
+<h3 class="text-2xl font-light group-hover:pl-2 transition-all duration-300">The Stone Void</h3>
+<p class="text-sm opacity-50 max-w-xs">Residential complex inspired by desert rock formations.</p>
+</div>
+</div>
+<div class="vertical-panel group flex flex-col gap-6 pt-40">
+<div class="relative aspect-[3/4] overflow-hidden rounded bg-stone-200">
+<div class="parallax-img absolute inset-[-20%] bg-cover bg-center transition-transform duration-100 ease-linear" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBj6sQIXNvfO2PrdVQHgv7E90qHIrz7kvdq_Jax-Lo9WMbcCJUp5bCGj4QxE5on5Zq2NSgLxjY7OwdgKuPgFSg6tC9fUX4BAjw3kd921oF0kixaugeJ1gQs-5ll0rrgMgEo7rt9yPGIwjOODl-SeyOUQzlr2KDew7GBxbO-uODZHQ7zYGFvsDIt-YAhAXJuaJm0QrKSHQ7gNCEiyVlIfkTGbFXZno6wXerdScoRzl79bP6J-zlBzpKXEWXOuQ9dy1JtotbxckayBSrT');"></div>
+<div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-500"></div>
+</div>
+<div class="flex flex-col gap-1">
+<span class="text-[10px] uppercase tracking-widest text-primary font-bold font-sans">Digital Art</span>
+<h3 class="text-2xl font-light group-hover:pl-2 transition-all duration-300">Fluid Dynamics</h3>
+<p class="text-sm opacity-50 max-w-xs">Exploring the tension between physical and digital matter.</p>
+</div>
+</div>
+</div>
+</section>
+<section class="relative w-full py-40 bg-background-light z-20 overflow-hidden" id="timeline-section">
+<div class="max-w-4xl mx-auto pl-10 md:pl-0 relative flex gap-20">
+<div class="absolute left-10 md:left-0 top-0 bottom-0 w-px bg-black/5">
+<div class="timeline-line w-px bg-black h-0 absolute top-0 left-0"></div>
+</div>
+<div class="flex flex-col gap-32 w-full pl-10 md:pl-10">
+<div class="timeline-item relative">
+<div class="absolute -left-[54px] md:-left-[54px] top-2 flex items-center">
+<span class="timeline-year text-xs font-bold font-sans tracking-widest bg-background-light pr-2">2024</span>
+<div class="w-3 h-px bg-black"></div>
+</div>
+<div class="timeline-project">
+<h4 class="text-3xl font-light">Lead Designer, MOMA</h4>
+<p class="text-sm text-gray-500 mt-2">Digital Transformation Initiative</p>
+</div>
+</div>
+<div class="timeline-item relative">
+<div class="absolute -left-[54px] md:-left-[54px] top-2 flex items-center">
+<span class="timeline-year text-xs font-bold font-sans tracking-widest bg-background-light pr-2">2023</span>
+<div class="w-3 h-px bg-black"></div>
+</div>
+<div class="timeline-project">
+<h4 class="text-3xl font-light">Art Director, VOGUE</h4>
+<p class="text-sm text-gray-500 mt-2">Interactive Editorial Series</p>
+</div>
+</div>
+<div class="timeline-item relative">
+<div class="absolute -left-[54px] md:-left-[54px] top-2 flex items-center">
+<span class="timeline-year text-xs font-bold font-sans tracking-widest bg-background-light pr-2">2021</span>
+<div class="w-3 h-px bg-black"></div>
+</div>
+<div class="timeline-project">
+<h4 class="text-3xl font-light">Senior Creative, Pentagram</h4>
+<p class="text-sm text-gray-500 mt-2">Brand Identity Systems</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="relative w-full h-[80vh] flex flex-col items-center justify-center bg-background-light z-20 pb-20" id="contact-section">
+<div class="flex flex-col items-center text-center">
+<p class="text-[10px] uppercase tracking-[0.4em] mb-4 text-primary font-bold font-sans">Collaborate</p>
+<h2 class="cta-text text-[8vw] md:text-[6vw] font-light leading-none whitespace-nowrap cursor-pointer hover:text-primary transition-colors duration-500">
+                START A PROJECT
+             </h2>
+<div class="mt-10 flex gap-4">
+<a class="px-8 py-3 border border-black/10 text-xs font-bold tracking-widest hover:bg-black hover:text-white transition-all uppercase font-sans" href="#">Email Me</a>
+<a class="px-8 py-3 border border-black/10 text-xs font-bold tracking-widest hover:bg-black hover:text-white transition-all uppercase font-sans" href="#">Schedule Call</a>
+</div>
+</div>
+</section>
+<footer class="w-full bg-white/50 backdrop-blur-md py-10 px-10 border-t border-black/5 z-30 relative">
+<div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+<div class="text-[10px] opacity-40 uppercase tracking-widest font-sans font-bold">
+<span>© 2024 ARCHIVE™ STUDIO</span>
+</div>
+<div class="flex gap-8 font-sans text-[10px] font-bold tracking-[0.2em] uppercase">
+<a class="hover:text-primary transition-colors" href="#">Instagram</a>
+<a class="hover:text-primary transition-colors" href="#">Behance</a>
+<a class="hover:text-primary transition-colors" href="#">LinkedIn</a>
+</div>
+</div>
+</footer>
+</main>
+<script>
+    // --- Custom Cursor Logic ---
+    const cursor = document.getElementById('cursor');
+    const heroTextContainer = document.querySelector('.hero-text-container');
+    const heroTextBase = document.getElementById('hero-text-base');
+    const heroTextReveal = document.getElementById('hero-text-reveal');
+    let mouseX = 0, mouseY = 0;
+    document.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        // Move cursor
+        cursor.style.left = e.clientX + 'px';
+        cursor.style.top = e.clientY + 'px';
+        // Hidden Text Reveal Logic
+        if (heroTextContainer && heroTextReveal && heroTextBase) {
+            const rect = heroTextContainer.getBoundingClientRect();
+            // Check if mouse is hovering over the hero text area
+            if (mouseX >= rect.left && mouseX <= rect.right && 
+                mouseY >= rect.top && mouseY <= rect.bottom) {
+                 // Keep reveal circle 5% larger than 120px hover cursor
+                 const radius = 63; 
+                 const cursorRect = cursor.getBoundingClientRect();
+                 const cursorCenterX = cursorRect.left + (cursorRect.width / 2);
+                 const cursorCenterY = cursorRect.top + (cursorRect.height / 2);
+                 // Calculate reveal center from actual rendered cursor center
+                 const x = cursorCenterX - rect.left;
+                 const y = cursorCenterY - rect.top;
+                 // 1. Reveal hidden 'ABSTRACT' text ONLY inside the circle
+                 heroTextReveal.style.clipPath = `circle(${radius}px at ${x}px ${y}px)`;
+                 // 2. Hide base 'ARCHIVE' text inside the circle using mask
+                 //    "transparent" cuts a hole, "black" keeps content visible. 
+                 //    So we want transparent at center (hole), black outside.
+                 heroTextBase.style.webkitMaskImage = `radial-gradient(circle ${radius}px at ${x}px ${y}px, transparent 100%, black 100%)`;
+                 heroTextBase.style.maskImage = `radial-gradient(circle ${radius}px at ${x}px ${y}px, transparent 100%, black 100%)`;
+                 // 3. Enlarge cursor and keep it simple
+                 cursor.style.width = '120px';
+                 cursor.style.height = '120px';
+                 cursor.style.border = 'none'; // Ensure no double border if any
+            } else {
+                 // Reset
+                 heroTextReveal.style.clipPath = `circle(0% at 50% 50%)`;
+                 heroTextBase.style.webkitMaskImage = 'none';
+                 heroTextBase.style.maskImage = 'none';
+                 // Reset cursor size if not hovering other interactables
+                 if (!e.target.closest('a, button, .vertical-panel, .timeline-project, .cta-text, .group')) {
+                     cursor.style.width = '40px';
+                     cursor.style.height = '40px';
+                 }
+            }
+        }
+    });
+    // Hover expand effect for other elements
+    const hoverables = document.querySelectorAll('button, a, .vertical-panel, .timeline-project, .cta-text, .group');
+    hoverables.forEach(el => {
+        el.addEventListener('mouseenter', () => {
+            // Only expand if NOT over the main hero text, to avoid conflict
+            if(el.id !== 'hero-text-base') {
+                cursor.style.width = '80px';
+                cursor.style.height = '80px';
+            }
+        });
+        el.addEventListener('mouseleave', () => {
+            cursor.style.width = '40px';
+            cursor.style.height = '40px';
+        });
+    });
+    // --- Pre-split Intro Text for Sequential Reveal ---
+    const introParagraph = document.getElementById('intro-paragraph');
+    const introTextContent = introParagraph.innerText;
+    introParagraph.innerHTML = '';
+    const words = introTextContent.split(' ');
+    words.forEach(word => {
+        const span = document.createElement('span');
+        span.textContent = word + ' '; // add space back
+        span.className = 'word-span';
+        introParagraph.appendChild(span);
+    });
+    const wordSpans = document.querySelectorAll('.word-span');
+    const introSectionContainer = document.getElementById('intro-section-container');
+    // --- Scroll & Animation Loop ---
+    function animate() {
+        const scrollY = window.scrollY;
+        const windowHeight = window.innerHeight;
+        // 1. Hero Parallax
+        const heroText = document.querySelector('.hero-text-split');
+        const heroHiddenText = document.querySelector('.hero-text-hidden');
+        const glassOrb = document.querySelector('.glass-orb');
+        if (scrollY < windowHeight) {
+            const heroProgress = scrollY / windowHeight;
+            // Apply parallax to both layers to keep them sync
+            if(heroText) {
+                heroText.style.letterSpacing = (0.2 + (heroProgress * 0.5)) + 'em';
+                heroText.style.opacity = 1 - heroProgress;
+            }
+            if(heroHiddenText) {
+                heroHiddenText.style.letterSpacing = (0.2 + (heroProgress * 0.5)) + 'em';
+                heroHiddenText.style.opacity = 1 - heroProgress; 
+            }
+            if(glassOrb) {
+                glassOrb.style.transform = `translate(-50%, -50%) scale(${1 + heroProgress}) rotate(${heroProgress * 45}deg)`;
+            }
+        }
+        // 2. Sequential Word Reveal Logic
+        const introRect = introSectionContainer.getBoundingClientRect();
+        // Calculate progress through the section container
+        // We want the animation to happen while the section is in view
+        // Specifically from when the sticky part hits 0 to when it leaves
+        const startOffset = windowHeight * 0.2; 
+        const endOffset = introRect.height - windowHeight;
+        // Calculate raw scroll progress within the intro section
+        let progress = -introRect.top / (introRect.height - windowHeight);
+        // Clamp progress between 0 and 1
+        progress = Math.min(Math.max(progress, 0), 1);
+        // Calculate how many words should be visible based on progress
+        const totalWords = wordSpans.length;
+        const wordsToReveal = Math.floor(progress * totalWords);
+        wordSpans.forEach((span, index) => {
+            if (index < wordsToReveal) {
+                span.style.opacity = '1';
+                span.style.color = '#000'; // Pure black
+            } else {
+                span.style.opacity = '0.2'; // Faint grey
+                span.style.color = 'inherit';
+            }
+        });
+        // 3. Skills Architectural Lines Animation
+        const skillsSection = document.getElementById('skills-section');
+        const skillsRect = skillsSection.getBoundingClientRect();
+        const archLines = document.querySelectorAll('.arch-line');
+        if (skillsRect.top < windowHeight * 0.6) {
+             archLines.forEach(line => line.classList.add('active'));
+        } else {
+             archLines.forEach(line => line.classList.remove('active'));
+        }
+        // 4. Parallax Images in Grid
+        const gridSection = document.getElementById('archive-grid');
+        const gridRect = gridSection.getBoundingClientRect();
+        if (gridRect.top < windowHeight && gridRect.bottom > 0) {
+            const parallaxImgs = document.querySelectorAll('.parallax-img');
+            parallaxImgs.forEach(img => {
+                const rect = img.parentElement.getBoundingClientRect();
+                // Calculate percentage of image visibility center relative to viewport center
+                const distanceFromCenter = (rect.top + rect.height/2) - (windowHeight / 2);
+                const percentFromCenter = distanceFromCenter / windowHeight;
+                // subtle movement
+                img.style.transform = `scale(1.2) translateY(${percentFromCenter * 30}px)`;
+            });
+        }
+        // 5. Timeline Animation
+        const timelineSection = document.getElementById('timeline-section');
+        const timelineRect = timelineSection.getBoundingClientRect();
+        const line = document.querySelector('.timeline-line');
+        const timelineItems = document.querySelectorAll('.timeline-item');
+        if (timelineRect.top < windowHeight * 0.8) {
+            // Animate line height based on scroll depth into section
+            const totalHeight = timelineSection.offsetHeight;
+            const scrolledPast = (windowHeight * 0.8) - timelineRect.top;
+            const percentage = Math.min(1, Math.max(0, scrolledPast / (totalHeight * 0.8)));
+            line.style.height = (percentage * 100) + '%';
+            // Reveal items as line passes them
+            timelineItems.forEach((item, index) => {
+                const itemTop = item.getBoundingClientRect().top - timelineRect.top;
+                const currentLineHeight = percentage * totalHeight;
+                if (currentLineHeight > itemTop) {
+                    item.querySelector('.timeline-year').style.opacity = '1';
+                    item.querySelector('.timeline-year').style.transform = 'translateX(0)';
+                    item.querySelector('.timeline-project').style.opacity = '1';
+                    item.querySelector('.timeline-project').style.transform = 'translateX(0)';
+                }
+            });
+        }
+        // 6. CTA Letter Spacing
+        const ctaSection = document.getElementById('contact-section');
+        const ctaRect = ctaSection.getBoundingClientRect();
+        const ctaText = document.querySelector('.cta-text');
+        if (ctaRect.top < windowHeight) {
+            // Calculate distance to bottom of page/section
+            const dist = Math.max(0, windowHeight - ctaRect.top);
+            // More spacing as we see more of the section
+            const spacing = Math.min(20, dist * 0.02); 
+            ctaText.style.letterSpacing = spacing + 'px';
+        }
+        requestAnimationFrame(animate);
+    }
+    // Initialize Animation Loop
+    animate();
+    // Time Update
+    function updateTime() {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+        document.getElementById('time-display').textContent = timeString + " PM"; // Mock PM for aesthetics
+    }
+    setInterval(updateTime, 60000);
+    updateTime();
+</script>
+</body></html>
